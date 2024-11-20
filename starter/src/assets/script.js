@@ -48,10 +48,14 @@ let cart = [];
   - if the product is not already in the cart, add it to the cart
 */
 
+function getProductByIdFromList(productId, productList){
+  return productList.find(product=>product.productId === productId)
+}
+
 function addProductToCart(productId) {
-  const product = products.find((item) => item.productId === productId);
+  let product = getProductByIdFromList(productId, products)
   if (product) {
-    const existingItem = cart.find((item) => item.productId === productId);
+    let existingItem = cart.find((item) => item.productId === productId);
     if (existingItem) {
       existingItem.quantity += 1;
     } else {
@@ -67,8 +71,8 @@ function addProductToCart(productId) {
 */
 
 function increaseQuantity(productId) {
-  const product = products.find((item) => item.productId === productId);
-  const cartItem = cart.find(item => item.productId === productId);
+  let product = getProductByIdFromList(productId, products)
+  let cartItem = getProductByIdFromList(productId, cart)
   if (product && cartItem) {
     product.quantity += 1;
     cartItem.quantity += 1;
@@ -81,32 +85,58 @@ function increaseQuantity(productId) {
   - if the function decreases the quantity to 0, the product is removed from the cart
 */
 
+// function decreaseQuantity(productId) {
+//   const product = products.find((item) => item.productId === productId);
+//   const cartItem = cart.find(item => item.productId === productId);
+//   if (product && cartItem) {
+//     if (cartItem.quantity >= 1) {
+//       product.quantity -= 1;
+//       cartItem.quantity -= 1;
+//     } else {
+//       product.quantity = 0;
+//       cart = cart.filter((item) => item.productId !== productId);
+//     }
+//   }
+// }
 function decreaseQuantity(productId) {
-  const product = products.find((item) => item.productId === productId);
-  const cartItem = cart.find(item => item.productId === productId);
-  if (product && cartItem) {
-    if (cartItem.quantity > 1) {
-      product.quantity -= 1;
-      cartItem.quantity -= 1;
-    } else {
-      product.quantity = 0;
-      cart = cart.filter((item) => item.productId !== productId);
+  let product = getProductByIdFromList(productId, products)
+  let cartItem = getProductByIdFromList(productId, cart)
+  
+  if (cartItem && product) {
+    cartItem.quantity -= 1;
+    product.quantity -= 1;
+    
+    if (cartItem.quantity === 0) {
+      removeProductFromCart(productId);
     }
   }
 }
+
 
 /* Create a function named removeProductFromCart that takes in the productId as an argument
   - removeProductFromCart should get the correct product based on the productId
   - removeProductFromCart should update the product quantity to 0
   - removeProductFromCart should remove the product from the cart
 */
+// function removeProductFromCart(productId) {
+//   const product = products.find((item) => item.productId === productId);
+//   if (product) {
+//     product.quantity = 0;
+//   }
+//   cart = cart.filter((item) => item.productId !== productId);
+// }
+
 function removeProductFromCart(productId) {
-  const product = products.find((item) => item.productId === productId);
-  if (product) {
-    product.quantity = 0;
+  const index = cart.findIndex(item => item.productId === productId);
+  if (index !== -1) {
+    cart.splice(index, 1);
+    const product = products.find(item => item.productId === productId);
+        if (product) {
+          product.quantity = 0;
+        }
   }
-  cart = cart.filter((item) => item.productId !== productId);
 }
+
 
 /* Create a function named cartTotal that has no parameters
   - cartTotal should iterate through the cart to get the total cost of all products
@@ -137,10 +167,20 @@ function cartTotal() {
   Hint: cartTotal function gives us cost of all the products in the cart  
 */
 
+// function pay(amount) {
+//   totalPaid+=amount;
+//   const total = cartTotal();
+//   return totalPaid - total;
+// }
+
 function pay(amount) {
   totalPaid+=amount;
-  const total = cartTotal();
-  return totalPaid - total;
+  let remaining = totalPaid - cartTotal();
+  if(remaining>=0){
+    totalPaid =0;
+    emptyCart();
+  }
+  return remaining;
 }
 
 /* Place stand out suggestions here (stand out suggestions can be found at the bottom of the project rubric.)*/
